@@ -5,8 +5,7 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  TextInput,
-  AsyncStorage
+  TextInput
 } from "react-native";
 import PropTypes from "prop-types";
 
@@ -31,7 +30,7 @@ class Todo extends Component {
   }
   render(){
     const { isEditing, todoValue } = this.state;
-    const { text, id, deleteTodo, isCompleted } = this.props;
+    const { text, isCompleted } = this.props;
     return (
       <View style={styles.container}>
         <TouchableOpacity onPress={this._toggleComplete}>
@@ -49,11 +48,9 @@ class Todo extends Component {
             ]}
             value={ todoValue } 
             onChangeText={this._controlTodo}
-            returnKeyType={"done"}
             autoCorrect={false}
             underlineColorAndroid={"transparent"} 
-            multiline={true} 
-            onSubmitEditing={this._finishEditing}/>
+            multiline={true} />
           ) : (
           <Text style={[
               styles.text,

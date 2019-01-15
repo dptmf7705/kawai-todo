@@ -7,7 +7,9 @@ import {
   TextInput,
   Dimensions,
   Platform,
-  ScrollView} from 'react-native';
+  AsyncStorage,
+  ScrollView
+} from 'react-native';
   import { AppLoading } from "expo";
   import Todo from './components/Todo/index.js';
   import uuidv1 from "uuid/v1";
@@ -48,14 +50,14 @@ export default class App extends React.Component {
             underlineColorAndroid={"transparent"} 
             onSubmitEditing={this._addTodo}/>
           <ScrollView contentContainerStyle={styles.todos}>
-            {Object.values(todos).reverse().map(todo => 
+            { todos == null ? <View /> : Object.values(todos).reverse().map(todo => 
                 <Todo 
                   key={todo.id} 
                   { ...todo } 
                   deleteTodo={this._deleteTodo}
                   completeTodo={this._completeTodo}
                   uncompleteTodo={this._uncompleteTodo}
-                  updateTodo={this._updateTodo} />)}
+                  updateTodo={this._updateTodo} />) }
           </ScrollView>
         </View>
       </View>
@@ -76,12 +78,12 @@ export default class App extends React.Component {
       this.setState({
         isLoaded: true,
         todos: parsedTodos
-      })
+      });
     } catch(err){
       console.log(err);
       this.setState({
         isLoaded: true
-      })
+      });
     }
   }
 
@@ -108,7 +110,7 @@ export default class App extends React.Component {
             // ... 안붙이면 newTodoObject: id: ID ... 이름까지 저장됨
           }
         };
-        _saveTodos(newState.todos);
+        this._saveTodos(newState.todos);
         return { ...newState }; // 마찬가지 ...붙이기
       });
     }
@@ -122,7 +124,7 @@ export default class App extends React.Component {
         ...prevState,
         ...todos
       };
-      _saveTodos(newState.todos);
+      this._saveTodos(newState.todos);
       return { ...newState };
     })
   }
@@ -139,7 +141,7 @@ export default class App extends React.Component {
           }
         }
       }
-      _saveTodos(newState.todos);
+      this._saveTodos(newState.todos);
       return newState;
     })
   }
@@ -156,7 +158,7 @@ export default class App extends React.Component {
           }
         }
       }
-      _saveTodos(newState.todos);
+      this._saveTodos(newState.todos);
       return newState;
     })
   }
@@ -173,7 +175,7 @@ export default class App extends React.Component {
           }
         }
       }
-      _saveTodos(newState.todos);
+      this._saveTodos(newState.todos);
       return { ...newState };
     })
   }
