@@ -28,8 +28,6 @@ export default class App extends React.Component {
   render() {
     const { newTodo, isLoaded, todos } = this.state;
     
-    console.log(todos);
-
     if(!isLoaded){
       return (<AppLoading />)
     }
@@ -70,10 +68,21 @@ export default class App extends React.Component {
     })
   }
 
-  _loadTodos = () => {
-    this.setState({
-      isLoaded: true
-    })
+  _loadTodos = async () => {
+    try {
+      const todos = await AsyncStorage.getItem("todos");
+      const parsedTodos = JSON.parse(todos);
+      console.log(todos);
+      this.setState({
+        isLoaded: true,
+        todos: parsedTodos
+      })
+    } catch(err){
+      console.log(err);
+      this.setState({
+        isLoaded: true
+      })
+    }
   }
 
   _addTodo = () => {
@@ -170,10 +179,8 @@ export default class App extends React.Component {
   }
   
   _saveTodos = (newTodos) => {
-    console.log(JSON.stringify(newTodos));
-    // const saveTodos = AsyncStorage.setItem("todos", newTodos);
+    AsyncStorage.setItem("todos", JSON.stringify(newTodos));
   }
-
 }
 
 const styles = StyleSheet.create({
