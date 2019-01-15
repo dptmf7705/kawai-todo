@@ -5,7 +5,8 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  TextInput
+  TextInput,
+  AsyncStorage
 } from "react-native";
 import PropTypes from "prop-types";
 
@@ -20,14 +21,17 @@ class Todo extends Component {
     };
   }
   static propTypes = {
+    id: PropTypes.string.isRequired,
     text: PropTypes.string.isRequired,
     isCompleted: PropTypes.bool.isRequired,
     deleteTodo: PropTypes.func.isRequired,
-    id: PropTypes.string.isRequired
+    completeTodo: PropTypes.func.isRequired,
+    uncompleteTodo: PropTypes.func.isRequired,
+    updateTodo: PropTypes.func.isRequired
   }
   render(){
-    const { isEditing, isCompleted, todoValue } = this.state;
-    const { text, id, deleteTodo } = this.props;
+    const { isEditing, todoValue } = this.state;
+    const { text, id, deleteTodo, isCompleted } = this.props;
     return (
       <View style={styles.container}>
         <TouchableOpacity onPress={this._toggleComplete}>
@@ -40,12 +44,16 @@ class Todo extends Component {
         { isEditing ? (
           <TextInput 
             style={[
-              styles.input,
               styles.text,
               isCompleted ? styles.completedText : styles.uncompletedText
             ]}
-            value={todoValue} 
-            multiline={true} />
+            value={ todoValue } 
+            onChangeText={this._controlTodo}
+            returnKeyType={"done"}
+            autoCorrect={false}
+            underlineColorAndroid={"transparent"} 
+            multiline={true} 
+            onSubmitEditing={this._finishEditing}/>
           ) : (
           <Text style={[
               styles.text,
@@ -66,7 +74,7 @@ class Todo extends Component {
             <TouchableOpacity style={styles.actionContainer} onPress={this._startEditing}>
               <Text style={styles.actionText}>수정</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionContainer} onPress={deleteTodo(id)}>
+            <TouchableOpacity style={styles.actionContainer} onPress={this._deleteTodo}>
               <Text style={styles.actionText}>삭제</Text>
             </TouchableOpacity>
           </View>
@@ -75,12 +83,15 @@ class Todo extends Component {
     )
   }
 
-  _toggleComplete = () => {
-    this.setState(prevState => {
-      return {
-        isCompleted: !prevState.isCompleted
-      }
+  _controlTodo = (text) => {
+    this.setState({
+      todoValue: text
     })
+  }
+
+  _toggleComplete = () => {
+    const { id, isCompleted, completeTodo, uncompleteTodo } = this.props;
+    isCompleted ? uncompleteTodo(id) : completeTodo(id);
   }
 
   _startEditing = () => {
@@ -92,12 +103,17 @@ class Todo extends Component {
   }
 
   _finishEditing = () => {
-    this.setState(prevState => {
-      return {
-        isEditing: false
-      }
-    })
+    const { todoValue } = this.state;
+    const { id, updateTodo } = this.props;
+    updateTodo(id, todoValue);
+    this.setState({ isEditing: false });
   }
+
+  _deleteTodo = () => {
+    const { id, deleteTodo } = this.props;
+     deleteTodo(id);
+  }
+
 }
 
 const styles = StyleSheet.create({

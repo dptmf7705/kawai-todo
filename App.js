@@ -50,8 +50,14 @@ export default class App extends React.Component {
             underlineColorAndroid={"transparent"} 
             onSubmitEditing={this._addTodo}/>
           <ScrollView contentContainerStyle={styles.todos}>
-            {Object.values(todos)
-              .map(todo => <Todo key={todo.id} { ...todo } deleteTodo={this._deleteTodo}/>)}
+            {Object.values(todos).reverse().map(todo => 
+                <Todo 
+                  key={todo.id} 
+                  { ...todo } 
+                  deleteTodo={this._deleteTodo}
+                  completeTodo={this._completeTodo}
+                  uncompleteTodo={this._uncompleteTodo}
+                  updateTodo={this._updateTodo} />)}
           </ScrollView>
         </View>
       </View>
@@ -93,12 +99,13 @@ export default class App extends React.Component {
             // ... 안붙이면 newTodoObject: id: ID ... 이름까지 저장됨
           }
         };
+        _saveTodos(newState.todos);
         return { ...newState }; // 마찬가지 ...붙이기
       });
     }
   }
 
-  _deleteTodo = id => {
+  _deleteTodo = (id) => {
     this.setState(prevState => {
       const todos = prevState.todos;
       delete todos[id];
@@ -106,8 +113,65 @@ export default class App extends React.Component {
         ...prevState,
         ...todos
       };
+      _saveTodos(newState.todos);
       return { ...newState };
     })
+  }
+
+  _uncompleteTodo = (id) => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        todos: {
+          ...prevState.todos,
+          [id] : {
+            ...prevState.todos[id],
+            isCompleted: false
+          }
+        }
+      }
+      _saveTodos(newState.todos);
+      return newState;
+    })
+  }
+  
+  _completeTodo = (id) => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        todos: {
+          ...prevState.todos,
+          [id] : {
+            ...prevState.todos[id],
+            isCompleted: true
+          }
+        }
+      }
+      _saveTodos(newState.todos);
+      return newState;
+    })
+  }
+
+  _updateTodo = (id, text) => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        todos: {
+          ...prevState.todos,
+          [id] : {
+            ...prevState.todos[id],
+            text: text
+          }
+        }
+      }
+      _saveTodos(newState.todos);
+      return { ...newState };
+    })
+  }
+  
+  _saveTodos = (newTodos) => {
+    console.log(JSON.stringify(newTodos));
+    // const saveTodos = AsyncStorage.setItem("todos", newTodos);
   }
 
 }
